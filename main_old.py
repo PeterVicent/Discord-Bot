@@ -2,7 +2,7 @@ import discord
 import time
 from PIL import Image
 
-CLIP_FRAMES = 120
+CLIP_FRAMES = 6571
 
 CLIP_LENGTH = 219.0666
 
@@ -12,7 +12,7 @@ ASCII_CHARS = ASCII_CHARS[::-1]
 
 WIDTH = 60
 
-TIMEOUT = 1/((int(CLIP_FRAMES)+1)/CLIP_LENGTH)*18
+TIMEOUT = 1/((int(CLIP_FRAMES/4)+1)/CLIP_LENGTH)*18
 
 def resize(image, new_width=WIDTH):
     (old_width, old_height) = image.size
@@ -54,8 +54,8 @@ def runner(path):
 
 frames = []
 
-for i in range(0, int(CLIP_FRAMES)+1):
-    path = "frames/frame"+str(i)+".jpg" #<--- path to folder containing every frame of the video
+for i in range(0, int(CLIP_FRAMES/4)+1):
+    path = "frames/frame"+str(i*4)+".jpg" #<--- path to folder containing every frame of the video
     frames.append(runner(path))
 
 client = discord.Client()
@@ -67,17 +67,31 @@ async def on_ready():
 @client.event
 async def on_message(message):
 
-    if message.content.startswith('Bot, me conte a verdade'):
+    if message.content.startswith('!bad apple'):
+        
+        oldTimestamp = time.time()
 
-        await message.channel.send("Pode deixar!")
+        start = oldTimestamp
+
+        seconds = 0
+        minutes = 0
 
         i = 0
         
         while i < len(frames)-1:
+            disp = False
+            while not disp:
+                newTimestamp = time.time()
+                if (newTimestamp - oldTimestamp) >= TIMEOUT:
 
-          await message.channel.send(frames[int(i)])
-          i = i + 1
+                    await message.channel.send(frames[int(i)])
+                    
+                    newTimestamp = time.time()
 
-          time.sleep(0.5)
+                    i += (newTimestamp - oldTimestamp)/TIMEOUT
+                    
+                    oldTimestamp = newTimestamp
 
-client.run('TOKEN')#<--- Put bot token here
+                    disp = True
+
+client.run('ODc3MjQ5ODY5NTYyMTM4NjY0.YRv4mw.LOlkizNQd6K-_KcUq12ZwLco-4w')#<--- Put bot token here
